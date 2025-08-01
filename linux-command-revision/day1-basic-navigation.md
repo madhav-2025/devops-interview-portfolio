@@ -4,7 +4,7 @@ Author: Madhav Jha
 Date: 01 August 2025
 ####################
 
-__-------------------
+-------------------
 
 #####  Navigation Commands in Linux
 
