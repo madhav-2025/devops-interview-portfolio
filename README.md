@@ -1,4 +1,4 @@
-#!/bin/bash
+
 
 ### DevOps Portfolio – Madhav Jha
 
