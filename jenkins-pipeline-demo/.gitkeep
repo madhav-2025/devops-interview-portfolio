@@ -1,0 +1,25 @@
+######### JENKINS FULL REVISION — STEP BY STEP ########
+<-------------------------------------------------------->
+
+. Step 1: Jenkins Introduction :::::::
+
+-> Jenkins ek open-source CI/CD tool hai.
+-> Use hota hai code build, test, deploy automatically karne ke liye.
+-> Written in Java.
+-> Website: https://www.jenkins.io
+
+. Step 2: Jenkins Installation ::::::::
+
+  1 -> Server Setup: Ubuntu 22.04 (AMI)
+  2 -> Install Jenkins + Git + Java (JDK) + Maven:
+
+      sudo apt update        -----> for update
+      sudo apt install openjdk-17-jdk -----> for java
+      sudo apt install git maven-------> for Maven
+      wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -                             _------------> For Jenkins link
+      sudo sh -c 'echo deb https://pkg.jenkins.io/debian binary/ > /etc/apt/sources.list.d/jenkins.list'         ------------->
+      sudo apt update    
+      sudo apt install jenkins --> install jenkins
+
+
+
