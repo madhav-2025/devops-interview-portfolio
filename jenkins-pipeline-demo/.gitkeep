@@ -63,3 +63,190 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+###### Jenkins Master–Slave (Agent/Node) Full Notes + Troubleshooting Guide ######
+            Part 1: Basic Understanding
+ Role                             Job
+Jenkins                      Master	Web UI, Schedule jobs
+Jenkins Slave (Agent)	       Runs jobs, builds, tests
+
+-> Master controls the logic.
+-> Slaves handle the heavy work.
+
+                    Part 2: Requirements
+Master Node (Jenkins)         	                Slave Node
+Jenkins Installed	                          SSH Server Installed
+Git, JDK (if needed)	                      Git, JDK, Maven
+Public/Private key pair (PEM format)	      .ssh/authorized_keys configured
+
+           Part 3: Step-by-Step Setup (Master-Slave via SSH)
+
+         A. On Jenkins Master:
+Switch to Jenkins user:-
+sudo su - jenkins----->Switch karte ho jenkins user ke under
+
+Generate SSH key (PEM format):
+ssh-keygen -t rsa -m PEM -b 4096
+
+# Press Enter 3 times
+Copy public key:
+cat ~/.ssh/id_rsa.pub
+
+Copy private key:
+cat ~/.ssh/id_rsa
+You'll use this in Jenkins UI.
+
+        B. On Slave Node:
+
+Create user:
+sudo useradd -m devops
+
+Switch to user:
+sudo su - devops
+
+Set up SSH dir:
+mkdir -p ~/.ssh -------Ek folder banate hain jahan SSH key save hoti hai
+chmod 700 ~/.ssh
+nano ~/.ssh/authorized_keys  # Paste public key
+chmod 600 ~/.ssh/authorized_keys
+
+Install dependencies:
+sudo apt update
+sudo apt install openjdk-17-jdk git maven -y
+
+Any issue go to ||Notes
+
+      C. Setup Node in Jenkins UI
+Jenkins → Manage Jenkins → Manage Nodes → New Node
+
+| Field                 | Value                                                    |
+| --------------------- | -------------------------------------------------------- |
+| Node Name             | devops-node                                              |
+| Type                  | Permanent                                                |
+| Remote root directory | /home/devops                                             |
+| Labels                | devops                                                   |
+| Host                  | 172.31.xx.xx ← **Private IP of slave**                   |
+| Credentials           | SSH Username with Private Key (devops, paste id_rsa)     |
+| Host Key Verification | Non-verifying                                            |
+--> Save
+          To Test It:-
+
+pipeline {
+  agent { label 'devops' }
+
+  stages {
+    stage('Test') {
+      steps {
+        sh 'whoami'
+        sh 'java -version'
+        sh 'mvn -version'
+        sh 'git clone https://github.com/git/git.git'
+      }
+    }
+  }
+}
+
+
+
+######### Troubleshooting ########
+--> Node offline
+
+Check:-
+Slave IP correct? (Private IP)
+User is devops?
+SSH working manually?
+
+--> Permission denied (publickey)
+
+. Public key not in ~/.ssh/authorized_keys?
+. Wrong permissions? Use:
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+
+--> PEM problem: it is of unknown type
+
+. Key is OpenSSH format, not PEM.
+. Fix:
+      ssh-keygen -t rsa -m PEM -b 4096
+--> Git Clone stuck
+
+ . No internet in slave EC2
+ . Fix:
+      . Attach IGW / NAT Gateway
+       . Check outbound rules
+
+    --> Node stays offline after saving
+. Check console log in node config
+. Check slave user shell: /bin/bash
+. Check if slave has Java installed
+
+NOTE::::::::-
+
+| Command                     | Purpose                  |
+| --------------------------- | ------------------------ |
+| `sudo su - jenkins`         | Go inside jenkins user   |
+| `mkdir ~/.ssh`              | Create SSH config folder |
+| `chmod 700 ~/.ssh`          | Set folder permission    |
+| `touch authorized_keys`     | Create key list file     |
+| `chmod 600 authorized_keys` | Secure file              |
+| `exit`                      | Done!                    |
+
+
+. Use PEM-formatted SSH keys for Jenkins credentials
+. Always use private IPs within VPC for SSH connection
+. Keep Jenkins master and slave in same region + subnet if possible
+. Use labels to target jobs to specific nodes
+
+      1: Manually try git clone on slave node
+SSH into your slave node (as devops):-
+      ssh devops@172.31.13.255 
+      git clone https://github.com/git/git.git
+2   How to Check If Git Repo Cloned?
+      ssh devops@<slave-private-ip>
+      cd ~/workspace/demo-devops-pipeline
+      ls
+
+Add SSH Credential for devops User (For Slave Node)
+ Where:
+Jenkins Dashboard → Manage Jenkins → Credentials
+→ (Click on global store) → Add Credentials
+| Field                             | Value                                                    |
+| --------------------------------- | -------------------------------------------------------- |
+| **Scope**                         | Global (Jenkins, nodes, items, all child items, etc)     |
+| **ID** (optional)                 | devops-key (or leave blank, Jenkins auto-generates)      |
+| **Description**                   | SSH Key for devops@slave-node                            |
+| **Username**                      | devops                                                   |
+| **Treat username as secret**      |  (uncheck)                                               |
+| **Private Key**                   | Choose: Enter directly                                   |
+| **Key** (large text area appears) | Paste here:                                              |
+
+cat /var/lib/jenkins/.ssh/id_rsa
+(run this on Jenkins master, as jenkins user)
+
+ The key should begin with:-
+-----BEGIN RSA PRIVATE KEY-----
+-----END RSA PRIVATE KEY-----
+
+######### enkins Master EC2 → SSH to Slave EC2
+Both EC2s are in same AWS VPC (same region, same project)
+So communication should use Private IP
+| From       | To         | IP                    |
+| ---------- | ---------- | --------------------- |
+| Your Mac   | Master EC2 | Public IP             |
+| Your Mac   | Slave EC2  | Public IP             |
+| Master EC2 | Slave EC2  | Private IP (always) |
+
+
+
