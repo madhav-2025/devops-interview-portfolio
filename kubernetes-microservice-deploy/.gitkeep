@@ -1,0 +1,235 @@
+=================================================
+Step 1 — Install Docker Container Engine --->
+===================================================
+  We’re doing this on your Jenkins Slave/Build Server or any Linux VM where you’ll run containers.
+      If you’re using Ubuntu/Debian, run:
+               .sudo apt update -y             |----->   This installs Docker Engine so we can create/manage images & containers.
+               .sudo apt install docker.io -y  |----->
+=================================================
+Step 2 — Verify Installation--->
+=================================================
+    docker --version -------> (Docker version 24.x.x, build xxxxxxx0) output show this type
+========================================
+Step 3 — List Images & Containers --->
+=======================================
+      Initially, you won’t have images or containers yet:-
+
+  . docker images           # Show images in local machine    -> (REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+                                                                 nginx        latest    2cd1d97f893f   4 weeks ago   192MB
+
+  . docker ps              # Show running containers         -> (CONTAINER ID   IMAGE     COMMAND                  CREATED        STATUS        PORTS                                     NAMES
+                                                               b30d0ab6c561   nginx     "/docker-entrypoint.…"   40 hours ago   Up 40 hours   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   mynginx
+
+  . docker ps -a          # Show all containers (running + stopped)  -> (CONTAINER ID   IMAGE     COMMAND                  CREATED        STATUS        PORTS                                     NAMES
+                                                                         b30d0ab6c561   nginx     "/docker-entrypoint.…"   40 hours ago   Up 40 hours   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   mynginx
+============================================
+Step 4 — Pull an Image from DockerHub ---->
+============================================
+      Let’s pull Ubuntu image:
+         .docker pull ubuntu   ----->(Using default tag: latest
+                                      latest: Pulling from library/ubuntu
+                                       32f112e3802c: Pull complete 
+                                        Digest: sha256:a08e551cb33850e4740772b38217fc1796a66da2506d312abe51acda354ff061
+                                         Status: Downloaded newer image for ubuntu:latest
+                                         docker.io/library/ubuntu:latest
+  -> This downloads the image locally so you can run it as a container.
+=============================================
+Step 5 — Run Containers in 3 Modes ---->
+=============================================
+ 1️. Foreground Mode (Attached)
+     . docker run ubuntu sleep 20 
+  Container runs sleep 20 then stops after 20 seconds.
+Note-: Kya hoga?==========>
+       Docker ek Ubuntu container banayega.
+       Uske andar command sleep 20 chalegi (20 seconds rukega).
+       20 sec baad container khatam ho jayega.
+       Tum terminal pe direct output dekhoge, jab tak container chal raha hai, tab tak tum wait karoge.
+ Use: Jab tumko container ka live output dekhna hai.
+
+2. Background Mode (Detached)
+    . docker run -d ubuntu sleep 20 ======> (e428f99bb308c81c8298d4cfce08ccc685fc9f5a10c109c9966fa942b23babb8)
+ Runs in background, use docker ps to see it.
+Note-:Kya hoga?========>
+     Same Ubuntu container banega.
+     Lekin -d ka matlab “background me chalao”.
+     Tumhara terminal free ho jayega immediately.
+     docker ps command se tum check kar sakte ho ki container chal raha hai.
+     20 sec baad ye khud stop ho jayega.
+ Use: Jab tumko container background me run karna hai taaki tum terminal pe dusra kaam kar sako.
+
+3.Interactive Mode ---->
+    . docker run -it ubuntu bash  =======> (root@1ecfe6d9b576:/#) 
+   Gives you a shell inside container.
+   Type exit to stop container.
+Note-: Kya hoga?
+      -it ka matlab:
+             -i → interactive mode (input le sakta hai tumse)
+             -t → terminal attach karta hai (ek shell deta hai)
+      Ye tumhe Ubuntu container ke andar ek bash shell de dega.
+      Tum uske andar normal Linux commands chala sakte ho.
+      Jab tum exit likhoge, container stop ho jayega.
+ Use: Jab tum container ke andar jaake manually kaam karna chahte ho (debugging, testing, install karna, etc.)
+
+####### Shortcut Table:########
+| Mode        | Command Example                 | Screen Attach? | Auto Exit?               |
+| ----------- | ------------------------------- | -------------- | ------------------------ |
+| Foreground  | docker run ubuntu sleep 20      | Yes            | Yes (20s)                |
+| Background  | docker run -d ubuntu sleep 20   | No             | Yes (20s)                |
+| Interactive | docker run -it ubuntu bash      | Yes (shell)    | No, jab tak exit na karo |
+
+=======>same Ubuntu image use karke teen mode ko practically chalayenge=====>
+Step A — Pull Ubuntu Image
+ . docker pull ubuntu 
+Ye command DockerHub se latest Ubuntu image tumhare system me le aayegi.
+
+Step B — Foreground Mode
+ . docker run ubuntu sleep 20
+Kya hoga?
+Tum terminal pe wait karoge.
+Container 20 sec ke liye chalega aur phir band ho jayega.
+Is time pe tum kuch aur type nahi kar paoge, kyunki screen attached hai.
+
+Step C — Background Mode
+  . docker run -d ubuntu sleep 20
+Kya hoga?
+
+Terminal turant free ho jayega.
+
+docker ps se tum check kar sakte ho:
+       . docker ps  ====> (CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+                           93f444dc00c6   ubuntu    "sleep 20"               16 seconds ago   Up 15 seconds                                             great_feistel
+                           b30d0ab6c561   nginx     "/docker-entrypoint.…"   41 hours ago     Up 41 hours     0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   mynginx
+Output me container ID, image name, aur uptime dikhega.
+20 sec baad container khud stop ho jayega.
+docker ps -a se tum dekh sakte ho ki wo exit ho chuka hai.
+
+Step D — Interactive Mode
+      . docker run -it ubuntu bash
+Kya hoga?
+ Tum directly Ubuntu container ke andar chale jaoge.
+ Prompt kuch aisa dikhega:
+   .root@<container_id>:/# ====> (root@ebdc9c3beafb:/# )
+Tum commands chala sakte ho:
+  .ls ===> (bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var)
+  .pwd===> (
+  .whoami ===(root)
+Jab kaam khatam ho jaye, type karo:
+. exit
+Ye tumhe bahar le aayega aur container stop ho jayega.
+====> Tip:- Tum docker ps -a run karke dekh sakte ho ki teen alag-alag containers ban gaye hain — ek foreground wala, ek background wala, aur ek interactive wala.
+
+============================================
+Step 6 – Port Mapping / Port Binding
+============================================
+Port mapping ka matlab:-
+      Tumhare container ke andar jo application chal rahi hai, uska port tumhare host machine ke port se connect karna.
+      Ye isliye zaruri hai kyunki default me container ka port bahar se access nahi hota.
+
+Step A — Tomcat Image Pull Karna:::::::
+Ye Tomcat version 8.0 ka image DockerHub se download karega.
+. docker pull tomcat:8.0 =====>(8.0: Pulling from library/tomcat
+                                f189db1b88b3: Pull complete 
+                                3d06cf2f1b5e: Pull complete 
+                                edd0da9e3091: Pull complete 
+                                e5ed720afeba: Pull complete 
+                                Digest: sha256:8ecb10948deb32c34aeadf7bf95d12a93fbd3527911fa629c1a3e7823b89ce6f
+                                Status: Downloaded newer image for tomcat:8.0
+                                docker.io/library/tomcat:8.0
+Step B — Tomcat Container with Port Mapping::::::::::::::::::::
+ .docker run -it -p 8085:8080 tomcat:8.0==>(Using CATALINA_BASE:   /usr/local/tomcat
+                                            Using CATALINA_HOME:   /usr/local/tomcat
+                                            Using CATALINA_TMPDIR: /usr/local/tomcat/temp
+                                            Using JRE_HOME:        /docker-java-home/jre
+                                            Using CLASSPATH:       /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar   etc )
+
+     -it → Interactive mode + terminal.
+     -p 8085:8080 → Host ka port 8085 map karega container ke 8080 se.
+     tomcat:8.0 → Tomcat version 8.0 ka image.
+ Iska matlab:-
+      Container ke andar Tomcat 8080 pe chalega.
+      Tum host machine (VM ka external IP) pe 8085 port hit karke usse access kar sakte ho.
+
+Step C — Browser Me Access Karna:::::::::
+ .Apna VM ka external IP ya localhost (agar same system pe ho) use karo.
+ .Browser me likho:
+  .http://<VM-IP>:8085====>(http://13.234.30.132:8085/)
+.Tumhe Tomcat ka default page dikhna chahiye.
+
+Step D — Container Band Karna::::::::
+Agar tumne container interactive mode me chalaya hai to terminal me CTRL + C dabake stop kar sakte ho.
+Background me chalane ke liye tum ye command use karte:
+ .docker run -d -p 8085:8080 tomcat:8.0 ====> (a147bec6bba3b583e5acd1f407ea91cc941fad4585b67aa098dddd6857017f29)
+Aur stop karne ke liye:
+ .docker ps====> ( show container Id)
+ .docker stop <container_id>   ====> (b30d0ab6c561)
+
+########################################
+Step 7 — Docker Volume Lab
+########################################
+Docker Volume Basics::::::
+Problem:-
+   Docker container ke andar ka data container delete hone ke baad chala jata hai (stateless).
+Solution:-
+   Volumes — Ye host machine me data store karte hain, container ke bahar.
+  Matlab container delete hone ke baad bhi data safe rahta hai.
+
+##### Docker Volume Lab #####
+ 1️ Volume list karna
+       . docker volume ls  ===> (DRIVER    VOLUME NAME)
+ Ye tumhare system me existing volumes dikhayega.
+
+2️ Naya volume create karna
+    . docker volume create pl-vol1 ==> (pl-vol1)
+Ye ek empty volume banayega jiska naam pl-vol1 hai.
+
+3️ Volume properties check karna
+     . docker volume inspect pl-vol1  ==>| ye out put dega 
+            [
+                 {
+                         "CreatedAt": "2025-08-12T07:00:16Z",
+                         "Driver": "local",
+                         "Labels": null,
+                         "Mountpoint": "/var/lib/docker/volumes/pl-vol1/_data",
+                         "Name": "pl-vol1",
+                         "Options": null,
+                         "Scope": "local"
+                }
+            ]
+ .  Ye tumhe volume ka exact location host machine pe dikhayega.
+
+4️ Volume ko container me mount karna
+  . docker run -it --mount source=pl-vol1,target=/pl-vol1 ubuntu bash   ===>(root@c6ad2051a6d5:/# )
+Iska matlab:-
+   source=pl-vol1 → Host ka volume name.
+   target=/pl-vol1 → Container ke andar ka folder jahan mount hoga.
+
+5️ Test — Data persistence
+   A. Container ke andar:
+        cd /pl-vol1====>(root@c6ad2051a6d5:/pl-vol1#)
+        echo "Hello from Docker Volume" > test.txt =======> (root@c6ad2051a6d5:/pl-vol1# echo "Hello from Docker volume"> test.txt)
+        exit===>exit 
+
+  B. Container delete karo:
+     . cdocker rm <container_id>   ===> (c6ad2051a6d5)
+
+  C. Naya container same volume ke saath run karo:
+        . docker run -it --mount source=pl-vol1,target=/pl-vol1 ubuntu bash ===>(root@472dd39175fb:/#)
+
+  D. Check file:-
+      . cat /pl-vol1/test.txt   ===> (Hello from Docker volume
+                                                root@472dd39175fb:/# exit)
+    Agar file wahan hai, to volume kaam kar raha hai.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
