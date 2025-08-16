@@ -4,7 +4,6 @@ Linux me apt ya yum chalane ke liye root access chahiye hota hai.
 Lekin Homebrew purposely isliye banaya gaya hai ki wo normal user ke home directory (/usr/local ya /opt/homebrew) me install ho.
  Matlab tu simple apne user terminal me run kare:
 
-
 Terminal me ye command run kar:
    brew --version     (Homebrew 4.3.5)
 -> Agar "command not found" aata hai to matlab brew install nahi hai.
@@ -13,14 +12,14 @@ Phir dobara check kar brew --version.
 
 
 ####### Install Script for Mac #####
-Save kar le as devops_setup.sh ya direct terminal me paste kar de:
+as devops_setup.sh ya direct terminal me paste kar de:
 
 #!/bin/bash
 
-# Check if brew is installed
+# Check for Homebrew
 if ! command -v brew &> /dev/null
 then
-    echo "🍺 Homebrew not found. Installing..."
+    echo "🍺 Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
     echo "✅ Homebrew already installed"
@@ -29,6 +28,7 @@ fi
 echo "🔄 Updating Homebrew..."
 brew update
 
+# Core Tools
 echo "⬇️ Installing Git..."
 brew install git
 
@@ -44,18 +44,110 @@ brew install kubectl
 echo "⬇️ Installing Minikube..."
 brew install minikube
 
-echo "🎉 Installation complete!"
-echo "Check versions below:"
+echo "⬇️ Installing Jenkins LTS..."
+brew install jenkins-lts
 
+echo "⬇️ Installing Nginx..."
+brew install nginx
+
+# Infra as Code
+echo "⬇️ Installing Terraform..."
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
+
+echo "⬇️ Installing Ansible..."
+brew install ansible
+
+echo "⬇️ Installing Helm..."
+brew install helm
+
+# Print versions
+echo "🎉 Installation complete! Versions:"
 git --version
 java -version
 mvn -version
 kubectl version --client
 minikube version
+jenkins-lts --version
+nginx -v
+terraform -version
+ansible --version
+helm version
 
 ----------------------------------------
 Run Script
 chmod +x devops_setup.sh
 ./devops_setup.sh
+-----------------------------------
+DevOps Start/Stop Cheat Sheet (Mac)
+Jenkins----->
+# Start Nginx
+brew services start nginx
 
+# Stop Nginx
+brew services stop nginx
+
+
+# Restart Nginx
+brew services restart nginx
+
+# Test Nginx config
+nginx -t
+Access in browser: http://localhost:8080 (ya 8081 agar Jenkins already 8080 le raha hai).
+--------------------------------------------------------------------------
+Minikube (Kubernetes local cluster)------->
+# Start Minikube
+minikube start
+
+# Stop Minikube
+minikube stop
+
+# Delete cluster
+minikube delete
+
+# Check status
+minikube status
+
+Dashboard open karne ke liye:
+# minikube dashboard
+-----------------------------------------------------------------
+Docker (Desktop App)
+Open: Docker Desktop App from Applications.
+Stop: Quit from menu bar.
+Check running containers:
+       # docker ps
+------------------------------------------------------------
+Terraform--->
+# Initialize terraform project
+terraform init
+
+# Plan infra changes
+terraform plan
+
+# Apply infra changes
+terraform apply
+
+# Destroy infra
+terraform destroy
+----------------------------------------------
+Ansible---->
+# Check version
+ansible --version
+
+# Run playbook
+ansible-playbook playbook.yml -i inventory
+------------------------------------------------
+Helm (K8s Package Manager)-->
+# Add repo
+helm repo add stable https://charts.helm.sh/stable
+
+# Update repos
+helm repo update
+
+# Install package
+helm install my-app stable/mysql
+
+# Uninstall package
+helm uninstall my-app
+-----------------------------------------
 
