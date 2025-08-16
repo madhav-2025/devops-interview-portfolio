@@ -32,6 +32,9 @@ brew update
 echo "⬇️ Installing Git..."
 brew install git
 
+#Kind install 
+brew install kind
+
 echo "⬇️ Installing OpenJDK 17..."
 brew install openjdk@17
 
@@ -73,6 +76,8 @@ nginx -v
 terraform -version
 ansible --version
 helm version
+kind --version
+
 
 ----------------------------------------
 Run Script
