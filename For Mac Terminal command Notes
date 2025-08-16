@@ -1,0 +1,61 @@
+MacOS me Homebrew ko root user (sudo -i) ke andar chalane ki zarurat nahi hoti.
+Mac me by default:
+Linux me apt ya yum chalane ke liye root access chahiye hota hai.
+Lekin Homebrew purposely isliye banaya gaya hai ki wo normal user ke home directory (/usr/local ya /opt/homebrew) me install ho.
+ Matlab tu simple apne user terminal me run kare:
+
+
+Terminal me ye command run kar:
+   brew --version     (Homebrew 4.3.5)
+-> Agar "command not found" aata hai to matlab brew install nahi hai.
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+Phir dobara check kar brew --version.
+
+
+####### Install Script for Mac #####
+Save kar le as devops_setup.sh ya direct terminal me paste kar de:
+
+#!/bin/bash
+
+# Check if brew is installed
+if ! command -v brew &> /dev/null
+then
+    echo "🍺 Homebrew not found. Installing..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+    echo "✅ Homebrew already installed"
+fi
+
+echo "🔄 Updating Homebrew..."
+brew update
+
+echo "⬇️ Installing Git..."
+brew install git
+
+echo "⬇️ Installing OpenJDK 17..."
+brew install openjdk@17
+
+echo "⬇️ Installing Maven..."
+brew install maven
+
+echo "⬇️ Installing kubectl..."
+brew install kubectl
+
+echo "⬇️ Installing Minikube..."
+brew install minikube
+
+echo "🎉 Installation complete!"
+echo "Check versions below:"
+
+git --version
+java -version
+mvn -version
+kubectl version --client
+minikube version
+
+----------------------------------------
+Run Script
+chmod +x devops_setup.sh
+./devops_setup.sh
+
+
