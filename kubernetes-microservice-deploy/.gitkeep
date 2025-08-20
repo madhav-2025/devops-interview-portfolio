@@ -84,7 +84,7 @@ kubectl get nodes
 kubectl get pods -n kube-system -o wide
 
 
------------- Kubernetes Cluster Setup (Master + Worker)---------------
+------------ Kubernetes Cluster Setup (Master + Worker)--------------- After issue then run script
 
 Script: setup-k8s.sh
 
@@ -206,6 +206,7 @@ Calico CNI install karega
 Ek join-command.sh file banayega (isme token + hash hota hai)
 
 Worker Nodes pe:------
+
 nano setup-k8s.sh   # same code paste karo
 chmod +x setup-k8s.sh
 ./setup-k8s.sh
@@ -214,7 +215,9 @@ cat ~/join-command.sh
 Aur worker nodes pe run karo.
 
 Verify on Master--------
+
 kubectl get nodes
 kubectl get pods -A
+
 
 
