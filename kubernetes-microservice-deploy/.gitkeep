@@ -84,4 +84,137 @@ kubectl get nodes
 kubectl get pods -n kube-system -o wide
 
 
+------------ Kubernetes Cluster Setup (Master + Worker)---------------
+
+Script: setup-k8s.sh
+
+
+#!/bin/bash
+set -e
+
+echo "============================"
+echo " Kubernetes Cluster Setup "
+echo "============================"
+
+# Variables
+K8S_VERSION="1.30.0-1.1"
+MASTER_IP="172.31.45.129"   # <-- apne master ka private IP daalna
+POD_CIDR="192.168.0.0/16"   # Calico ke liye
+USER_HOME="/home/ubuntu"
+
+echo "[STEP 1] System update kar rahe hain..."
+sudo apt update -y
+sudo apt upgrade -y
+
+echo "[STEP 2] Docker + Containerd clean up..."
+sudo systemctl stop docker || true
+sudo systemctl stop containerd || true
+sudo apt remove -y docker.io containerd runc || true
+sudo apt purge -y docker.io containerd runc || true
+sudo apt autoremove -y
+sudo rm -rf /etc/docker /etc/containerd /var/lib/docker /var/lib/containerd
+
+echo "[STEP 3] Required packages install kar rahe hain..."
+sudo apt install -y apt-transport-https ca-certificates curl gpg software-properties-common
+
+echo "[STEP 4] Docker repo add kar rahe hain..."
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) stable"
+
+echo "[STEP 5] Docker + Containerd install kar rahe hain..."
+sudo apt update -y
+sudo apt install -y docker-ce docker-ce-cli containerd.io
+
+echo "[STEP 6] Docker enable kar rahe hain..."
+sudo systemctl unmask docker.service || true
+sudo systemctl unmask docker.socket || true
+sudo systemctl enable docker
+sudo systemctl start docker
+
+echo "[STEP 7] Containerd config fix kar rahe hain..."
+sudo mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+sudo systemctl restart containerd
+sudo systemctl enable containerd
+
+echo "[STEP 8] Kubernetes repo add kar rahe hain..."
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+echo "[STEP 9] Kubeadm + Kubelet + Kubectl install kar rahe hain..."
+sudo apt update -y
+sudo apt install -y kubelet=$K8S_VERSION kubeadm=$K8S_VERSION kubectl=$K8S_VERSION
+sudo apt-mark hold kubelet kubeadm kubectl
+
+echo "[STEP 10] Swap disable kar rahe hain..."
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
+
+echo "[STEP 11] br_netfilter enable kar rahe hain..."
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+sudo sysctl --system
+
+echo "[STEP 12] Node reset..."
+sudo kubeadm reset -f
+
+# Check if it's master or worker
+if hostname | grep -q "master"; then
+    echo "[MASTER] Cluster init kar rahe hain..."
+    sudo kubeadm init --pod-network-cidr=$POD_CIDR --apiserver-advertise-address=$MASTER_IP
+
+    echo "[MASTER] Kube config set kar rahe hain..."
+    mkdir -p $USER_HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $USER_HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $USER_HOME/.kube/config
+
+    echo "[MASTER] Calico CNI deploy kar rahe hain..."
+    kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+    echo "[MASTER] Join command save kar rahe hain..."
+    kubeadm token create --print-join-command | tee $USER_HOME/join-command.sh
+
+    echo "[✅ MASTER READY] Ab worker nodes pe join-command.sh ka command chalao."
+
+else
+    echo "[WORKER] Ready to join. Master ke join command run karo."
+fi
+
+
+Master Node pe:-------
+nano setup-k8s.sh   # code paste karo
+chmod +x setup-k8s.sh
+./setup-k8s.sh
+
+Ye master ko init karega
+Calico CNI install karega
+Ek join-command.sh file banayega (isme token + hash hota hai)
+
+Worker Nodes pe:------
+nano setup-k8s.sh   # same code paste karo
+chmod +x setup-k8s.sh
+./setup-k8s.sh
+Phir master se copy karo join command:
+cat ~/join-command.sh
+Aur worker nodes pe run karo.
+
+Verify on Master--------
+kubectl get nodes
+kubectl get pods -A
+
 
