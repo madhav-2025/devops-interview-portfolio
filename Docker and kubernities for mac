@@ -1,0 +1,90 @@
+=========> Docker for Mac <============
+Install and check
+# docker --version
+# docker info 
+
+step ----> 1 first container run hello world
+ # docker run hello-world  (hello from docker)
+
+step ---->2 Web server run (nginx)
+# docker pull nginx
+# docker run -d -p 8080:80 --name ,mynginx nginx  (http://localhost:8080 ) default nginx page
+# docker ps
+
+Step ------>3 Logs,exec,restart(troubleshoot skills)
+# docker logs mynginx  (recent logs)
+# docker logs -f mynginx  (live tail)
+# docker exec -it mynginx bash (container ke andar shell)
+# exit (back from containers)
+# docker restart mynginx
+
+step --->4 Volumes (Data persist)- container delete ho to data na lost ho
+# mkdir -p ~/nginx-html
+# echo "Hello from volume" > ~/nginx-html/index.html
+# docker run -d -p 8081:80 --name webvol \-v ~/nginx-html:/usr/share/nginx/html:ro nginx (420e9e509462b9f0c8defe7150efb69acc027f0d67473ff40569cc4dc965fa96)
+ Note :- http://localhost:8081 par text show karega
+        use:- 
+
+Step ---->5 Networking (container <-> container)
+ ==> Multi-service apps coonnect karna .
+# docker network create appnet (113fb36e4da3234db3cb80ee6aec7007c74818188f873b70ad411040e11b1023)
+# docker run -d --name redis --network appnet redis:7 (Status: Downloaded newer image for redis:7
+                                                        4868db8a4fbd8dbb027ce7be1bb8bba1abdbd445d246451818d9de6fda69eb9e)
+# docker run -it --rm --network appnet busybox sh (Downloaded newer image for busybox:latest)
+  # busybox ke andar:
+    -# ping redis             --- redis ping statistics ---
+                      8 packets transmitted, 8 packets received, 0% packet loss
+                         round-trip min/avg/max = 0.074/0.092/0.123 ms
+     # exit
+USE:-> app<->db secure isolated network
+
+Step ---->6 Dockerfile(custom image)
+ #  mkdir mysite && cd mysite
+cat > index.html <<'EOF'
+<h1>My App v1</h1>
+EOF
+___ apple@Apples-MacBook-Pro mysite %
+
+# cat > Dockerfile <<'EOF'
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+EOF
+
+# docker build -t mysite:v1 .   ([+] Building 9.4s (8/8) FINISHED )
+# docker run -d -p 8082:80 --name sitev1 mysite:v1    (e4a7f370829f664dfac83b16ddc2b8e2627edb9fb84f4e3139cedd2e05a3fdd0)
+ Note;- http://localhost:8082 par "my App V1" . dikega
+ use:- CI/CD me image build hota hai
+
+Step ---->7 Image push(registry)
+# docker login  (Authenticating with existing credentials... [Username: jhamadhav2025])
+# docker tag mysite:v1 jhamadhav2025/mysite:v1 
+#  docker push jhamadhav2025/mysite:v1 (9824c27679d3: Mounted from docker/welcome-to-docker 
+                                           c9ebe2ff2d2c: Pushed 
+                                          a992fbc61ecc: Pushed 
+                                         v1: digest: sha256:88361f9568cbd6454708877109045e3937855fad4aa24d6f04877c6c0dcb61c9 size: 856)
+---> apple@Apples-MacBook-Pro mysite % 
+Use:- prod/stage me deploy ke liye single sourse
+
+Step ----->8 Docker compose (multi-container)
+---> ek file se sarri services up 
+Commands :-
+ # mkdir comp && cd comp
+cat > docker-compose.yml <<'YAML'
+services:
+  app:
+    image: nginx:alpine
+    ports: ["8083:80"]
+  cache:
+    image: redis:7
+YAML
+
+docker compose up -d
+docker compose ps
+docker compose down
+-> ye sara yek script me run kardo
+Use-: local dev,small prod stacks
+
+
+
+
+
