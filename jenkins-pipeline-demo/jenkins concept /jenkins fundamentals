@@ -132,4 +132,21 @@ Jenkins Pipeline: The Modern Approach
 
 Let's focus on Pipeline as it's critical for modern DevOps.
 
-A Jenkinsfile typically defines a series of stages and steps.
+----> A Jenkinsfile typically defines a series of stages and steps.
+          This image visually represents the different ways to interact with Jenkins via commands, including the Jenkins CLI, operating system commands for service management, Groovy scripts, and Docker commands.
+
+======> Summary:::::
+
+In essence, "commands" in Jenkins can refer to:
+
+Jenkins CLI commands: For direct interaction with the Jenkins API from your terminal.
+
+Operating System commands: For starting, stopping, and managing the Jenkins service itself.
+
+Groovy Script Console snippets: For powerful, programmatic control over Jenkins internals.
+
+Pipeline steps/DSL: Commands executed by Jenkins within a job (e.g., sh, git, junit).
+
+Docker commands: If Jenkins is containerized.
+
+Always refer to the official Jenkins documentation for the most up-to-date and specific command usage, especially for plugins which often introduce their own CLI commands.
