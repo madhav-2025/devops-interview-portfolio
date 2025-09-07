@@ -29,8 +29,12 @@ Q.Why is Jenkins so Crucial in DevOps?
         Beyond CI/CD, Jenkins can automate virtually any task that can be executed via a script, such as creating reports, running nightly builds, or performing database migrations.
 
 Q.Core Concepts and Components of Jenkins?
-Let's break down the essential elements:
 
+Let's break down the essential elements:
+Q.Jenkins Architecture ::-
+	
+		Jenkins is based on Master-Slave Architecture :::
+		
     Jenkins Master (Controller):
 
         The central brain of Jenkins.
