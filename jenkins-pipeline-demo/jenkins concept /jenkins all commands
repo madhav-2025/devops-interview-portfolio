@@ -1,1 +1,17 @@
+:::::::::::::::: Operating System Commands (Starting/Stopping Jenkins) :::::::
 
+=====>How you start and stop Jenkins depends on how it was installed.
+
+======>If installed via Package Manager (e.g., Homebrew on Mac, APT/Yum on Linux):
+
+1 ---> Linux (systemd-based, like Ubuntu 16.04+, CentOS 7+):
+    sudo systemctl start jenkins
+    sudo systemctl stop jenkins
+    sudo systemctl restart jenkins
+    sudo systemctl status jenkins
+
+2 ---> macOS (Homebrew):
+     brew services start jenkins
+     brew services stop jenkins
+     brew services restart jenkins
+     brew services list | grep jenkins
