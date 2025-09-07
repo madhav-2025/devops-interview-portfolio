@@ -1,0 +1,19 @@
+DevOps Perspective :::::::::::::-
+	
+	====> Roles & Responsibilies of DevOps Team :			
+			
+			Jenkins Administration 
+				- Installation of Jenkins
+				- Global System Configurations 
+				- Plugins Management 
+				- Tools Management 
+				- User Management 	------				# To enable User Authentication
+				- Security Management	------			# To enable User Authorization
+				- Credential Management 
+				- Master/Slave Node Configurations
+				- Creation CICD Pipeline Projects 
+				- Onboard Applications to use Jenkins CICD Projects  
+				- Periodic Upgrade of Jenkins and its plugins 
+				- Periodic Backup 
+				- Troubleshooting the Issues!	
+	
