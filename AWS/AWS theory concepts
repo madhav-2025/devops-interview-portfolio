@@ -1,1 +1,175 @@
 
+::::::  AWS Console Sections & Their Use :::::::
+
+1. Compute
+
+👉 Ye section servers aur applications run karne ke liye hota hai.
+
+EC2 (Elastic Compute Cloud): Virtual servers banane ke liye (Linux/Windows).
+
+Lambda: Code ko bina server manage kiye run karne ke liye (serverless).
+
+Elastic Beanstalk: Application deploy karne ka easy tool (auto scaling, load balancer ke sath).
+
+ECS (Elastic Container Service): Docker containers ko manage karne ke liye.
+
+EKS (Elastic Kubernetes Service): Kubernetes clusters chalane ke liye.
+
+
+
+2. Storage
+
+👉 Data save karne aur backup ke liye.
+
+S3 (Simple Storage Service): Unlimited object storage (files, images, backups).
+
+EBS (Elastic Block Store): EC2 ke liye hard disk jaisa storage.
+
+EFS (Elastic File System): Shared file system, multiple EC2 ke liye.
+
+Glacier: Cheap storage for backups/archive (long term).
+
+
+3. Database
+
+👉 Managed databases ke liye.
+
+RDS (Relational Database Service): MySQL, PostgreSQL, Oracle, SQL Server, Aurora.
+
+DynamoDB: NoSQL database (super fast, scalable).
+
+Redshift: Data warehouse (analytics ke liye).
+
+ElastiCache: Caching (Redis/Memcached).
+
+
+4. Networking & Content Delivery
+
+👉 Network aur traffic control ke liye.
+
+VPC (Virtual Private Cloud): Apna private network banane ke liye.
+
+Route 53: DNS aur domain management.
+
+CloudFront: Content delivery network (fast website load globally).
+
+Elastic Load Balancing (ELB): Traffic ko multiple servers me distribute karna.
+
+Direct Connect: AWS ko directly connect karna (high speed link).
+
+
+
+5. Security, Identity & Compliance
+
+👉 Security aur users manage karne ke liye.
+
+IAM (Identity & Access Management): Users, groups, permissions.
+
+Cognito: App users ka authentication (sign-in, sign-up).
+
+KMS (Key Management Service): Data encryption keys manage karne ke liye.
+
+Shield: DDoS protection.
+
+WAF (Web Application Firewall): Web security rules set karne ke liye.
+
+
+
+6. DevOps / Developer Tools
+
+👉 CI/CD aur monitoring ke liye.
+
+CodeCommit: Git repository (GitHub jaisa).
+
+CodeBuild: Source code compile aur build karne ke liye.
+
+CodeDeploy: App ko EC2 ya Lambda pe deploy karna.
+
+CodePipeline: CI/CD pipeline banane ke liye.
+
+CloudWatch: Logs aur metrics monitor karne ke liye.
+
+X-Ray: Application tracing.
+
+
+7. Management & Governance
+
+👉 AWS resources ko manage karne ke liye.
+
+CloudFormation: Infrastructure as code (YAML/JSON template se resource create).
+
+CloudTrail: AWS account ke sabhi activity ka record (audit ke liye).
+
+Config: Resources ka configuration track karna.
+
+Organizations: Multiple AWS accounts ko ek sath manage karna.
+
+Trusted Advisor: Best practices aur cost saving suggestions.
+
+
+
+8. Machine Learning
+
+👉 AI aur ML services ke liye.
+
+SageMaker: ML models train aur deploy karne ke liye.
+
+Rekognition: Image & video analysis (face detection).
+
+Polly: Text-to-speech.
+
+Translate: Language translation.
+
+Lex: Chatbot banane ke liye (Alexa jaisa).
+
+
+9. Analytics
+
+👉 Data analysis aur processing ke liye.
+
+Athena: Directly S3 me stored data pe SQL queries run karna.
+
+EMR (Elastic MapReduce): Big Data processing (Hadoop, Spark).
+
+Kinesis: Real-time data streaming (like IoT, logs).
+
+QuickSight: Business intelligence dashboards.
+
+
+
+10. Migration & Transfer
+
+👉 Data aur applications ko AWS me migrate karne ke liye.
+
+DMS (Database Migration Service): On-premise database → AWS.
+
+Snowball: Physical device for transferring TBs of data.
+
+DataSync: Fast transfer between on-premise and AWS.
+
+
+
+11. Customer Engagement
+
+👉 Customer ke sath interact karne ke liye.
+
+SES (Simple Email Service): Email sending.
+
+SNS (Simple Notification Service): Notifications (SMS, email, apps).
+
+SQS (Simple Queue Service): Message queues (decouple applications).
+
+
+
+12. Cost Management
+
+👉 AWS kharch track karne ke liye.
+
+Billing Dashboard: Cost check karne ke liye.
+
+Cost Explorer: Cost visualization aur analysis.
+
+Budgets: Alerts set karne ke liye jab cost exceed ho jaye.
+
+
+
