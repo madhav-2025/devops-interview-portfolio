@@ -1,1 +1,206 @@
+Q. Dockerfile Kya Hota Hai?
 
+-> Dockerfile ek text file hoti hai jisme hum instructions likhte hain ki hamara container kaise banega.
+   Jaise hum recipe likhte hain khana banane ke liye, waise hi Dockerfile ek recipe hai image banane ke liye.
+
+
+==>  Dockerfile likhne ke basic steps:::::::::::::
+
+Dockerfile me mostly yeh commands use hote hain:
+
+1. FROM → Base image batata hai (jaise OS ya language environment)
+
+
+2. WORKDIR → Kaam karne ki default directory
+
+
+3. COPY → File ko host machine se container me copy karne ke liye
+
+
+4. RUN → Installation ya setup ke liye commands run karne ke liye
+
+    
+5. CMD → Container start hone ke baad chalne wali default command
+
+Example::::::::::->  
+--> write a simple node.js app  (app.js file ke sath)
+
+# Step 1: Base image select karo
+FROM node:18
+
+# Step 2: Container ke andar working directory banao
+WORKDIR /app
+
+# Step 3: package.json ko copy karo
+COPY package*.json ./
+
+# Step 4: Dependencies install karo
+RUN npm install
+
+# Step 5: Baaki code copy karo
+COPY . .
+
+# Step 6: App ko start karne ki command
+CMD ["node", "app.js"]
+
+
+===> Iska Matlab :::::::::::
+
+FROM node:18 →            Node.js version 18 use karenge
+
+WORKDIR /app →            Saara kaam /app folder me hoga
+
+COPY package*.json ./ →   package.json ko copy karo
+
+RUN npm install →         Dependencies install karo
+
+COPY . . →                Baaki files copy karo
+
+CMD ["node", "app.js"] →  Jab container chale tab node app.js run ho
+
+
+==> Dockerfile banane ka process:::::
+
+1. File ka naam hamesha Dockerfile hota hai (capital D se).
+
+2. Us folder me jaake command chalao:
+
+docker build -t myapp .
+
+(Yaha . matlab current folder)
+
+3. Phir container run karo:
+
+docker run -p 3000:3000 myapp
+
+
+example:::::-
+Step -1 
+mkdir hello-docker
+   app.js
+   Dockerfile
+ cd hello-docker
+touch app.js
+touch Dockerfile
+vim app.js copy code
+vim Dockerfile
+docker build -t hello-docker
+   output  => => unpacking to docker.io/library/hello-docker:latest  
+docker run -p 3000:3000 hello-docker  
+Server running on port 3000
+
+Vim Dockerfile-
+# Step 1: Node.js base image use karo
+FROM node:18
+
+# Step 2: Container ke andar working directory set karo
+WORKDIR /app
+
+# Step 3: app.js file copy karo
+COPY app.js .
+
+# Step 4: Default command jab container chale
+CMD ["node", "app.js"]
+
+
+--------------------------
+1. FROM kaise decide karna hai?
+
+FROM ka matlab hai base image — matlab tera code kis environment me chalega.
+
+👉 Ye tumhe developer ke code se samajhna hoga:
+
+Agar project Node.js ka hai → FROM node:18 ya latest LTS node version
+
+Agar project Python ka hai → FROM python:3.10
+
+Agar project Java (Spring Boot) ka hai → FROM openjdk:17
+
+Agar project PHP ka hai → FROM php:8.1-apache
+
+Agar project me already Dockerfile ho → developer ne specify kar rakha hoga, wahi use karo.
+
+
+💡 Simple trick:
+Dekho ki project me kaunsa language/framework use hua hai, us language ka base image select karo.
+
+
+---
+
+🔹 2. WORKDIR kaise decide karna hai?
+
+WORKDIR ka matlab hai container ke andar ka default folder jaha saara code rakha jaayega.
+Ye tum khud decide kar sakte ho — jaise /app, /usr/src/app, ya kuch bhi.
+
+👉 Best practice:
+Hamesha /app ya /usr/src/app use karte hain.
+Taki container ke andar saari files ek jagah rahen, scattered na ho.
+
+
+---
+
+🔹 3. GitHub se code mila to kya karna hai?
+
+Example: Maan lo tumhe GitHub se ek Node.js project mila hai.
+
+Folder structure kuch aisa hai:
+
+project/
+  ├── app.js
+  ├── package.json
+  ├── package-lock.json
+  └── src/
+
+Ab tumhe Dockerfile likhna hai 👇
+
+# 1. Base image (language ke hisaab se)
+FROM node:18
+
+# 2. Container ke andar ek work directory banao
+WORKDIR /app
+
+# 3. Package.json ko copy karo (dependencies ke liye)
+COPY package*.json ./
+
+# 4. Dependencies install karo
+RUN npm install
+
+# 5. Baaki files copy karo
+COPY . .
+
+# 6. App start command
+CMD ["node", "app.js"]
+
+
+---
+
+🔹 4. Agar project Python ka ho
+
+Example: GitHub se Python Flask app mila jisme requirements.txt hai.
+
+FROM python:3.10
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["python", "app.py"]
+
+
+---
+
+🔹 5. Short summary
+
+FROM → project language pe depend karta hai
+
+WORKDIR → tum khud choose karte ho (jaise /app)
+
+COPY → files ko container ke andar laane ke liye
+
+RUN → dependencies install karne ke liye
+
+CMD → project start karne ke liye
